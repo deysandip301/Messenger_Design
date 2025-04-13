@@ -1,3 +1,5 @@
+![schema_messenger](https://github.com/user-attachments/assets/2c51f515-ca60-46ee-ab29-ccbe76b98666)
+
 ## Keyspace Configuration
 
 ```cql
