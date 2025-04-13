@@ -58,7 +58,7 @@ def generate_test_data(session):
     """
     logger.info("Generating test data...")
     
-    # 1. Create a set of user IDs (0 to NUM_USERS-1)
+    # 1. Create a set of user IDs (1 to NUM_USERS)
     user_ids = list(range(1,NUM_USERS+1))
     logger.info(f"Created {len(user_ids)} users with IDs from 1 to {NUM_USERS}")
     
@@ -232,7 +232,8 @@ def generate_test_data(session):
                 latest_message_time,
                 latest_message_content
             ))
-    
+    logger.info(f"These are the all conversation_ids : {[conv['id'] for conv in conversations]}")
+    logger.info(f"These are all the conversation users pairs : {[(conv['user1_id'], conv['user2_id']) for conv in conversations]}")
     logger.info(f"Generated {message_count} messages across {len(conversations)} conversations")
     logger.info(f"User IDs range from 1 to {NUM_USERS}")
     logger.info("Use these IDs for testing the API endpoints")
