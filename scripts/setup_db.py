@@ -44,6 +44,14 @@ def create_keyspace(session):
     # TODO: Students should implement keyspace creation
     # Hint: Consider replication strategy and factor for a distributed database
     
+    session.execute(f"""
+        CREATE KEYSPACE IF NOT EXISTS {CASSANDRA_KEYSPACE}
+        WITH REPLICATION = {{
+            'class': 'SimpleStrategy',
+            'replication_factor': 3
+        }}
+    """)
+    
     logger.info(f"Keyspace {CASSANDRA_KEYSPACE} is ready.")
 
 def create_tables(session):
@@ -59,6 +67,48 @@ def create_tables(session):
     # - What tables are needed to implement the required APIs?
     # - What should be the primary keys and clustering columns?
     # - How will you handle pagination and time-based queries?
+    
+    # Messages Table - Stores all messages between users
+    # Using TIMEUUID for message_id for unique ID with timestamp
+    session.execute("""
+        CREATE TABLE IF NOT EXISTS messages (
+            conversation_id INT,
+            message_id TIMEUUID,  
+            sender_id INT,
+            receiver_id INT,
+            content TEXT,
+            created_at TIMESTAMP,
+            PRIMARY KEY ((conversation_id), created_at, message_id)
+        ) WITH CLUSTERING ORDER BY (created_at DESC, message_id DESC);
+    """)
+    logger.info("Messages table created.")
+    
+    # Conversations by User Table - For retrieving all conversations of a user
+    session.execute("""
+        CREATE TABLE IF NOT EXISTS conversations_by_user (
+            user_id INT,
+            conversation_id INT,
+            other_user_id INT,
+            last_message_at TIMESTAMP,
+            last_message_content TEXT,
+            PRIMARY KEY ((user_id), last_message_at, conversation_id)
+        ) WITH CLUSTERING ORDER BY (last_message_at DESC, conversation_id ASC);
+    """)
+    logger.info("Conversations by user table created.")
+    
+    # Conversation Details Table - For conversation metadata
+    # Now includes last message details for efficient retrieval
+    session.execute("""
+        CREATE TABLE IF NOT EXISTS conversations (
+            conversation_id INT PRIMARY KEY,
+            user1_id INT,
+            user2_id INT,
+            created_at TIMESTAMP,
+            last_message_at TIMESTAMP,
+            last_message_content TEXT
+        );
+    """)
+    logger.info("Conversations table created.")
     
     logger.info("Tables created successfully.")
 
