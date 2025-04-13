@@ -1,4 +1,5 @@
 ![schema_messenger](https://github.com/user-attachments/assets/2c51f515-ca60-46ee-ab29-ccbe76b98666)
+We can shard our database based on the user_id
 
 ## Keyspace Configuration
 
