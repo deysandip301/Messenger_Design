@@ -4,7 +4,7 @@ This provides a connection to the Cassandra database.
 """
 import os
 import uuid
-from typing import List, Dict, Any, Optional
+from typing import List, Dict, Any, Optional, Union, Tuple
 from datetime import datetime
 import logging
 
@@ -57,13 +57,13 @@ class CassandraClient:
             self.cluster.shutdown()
             logger.info("Cassandra connection closed")
     
-    def execute(self, query: str, params: dict = None) -> List[Dict[str, Any]]:
+    def execute(self, query: str, params: Union[Tuple, Dict[str, Any]] = None) -> List[Dict[str, Any]]:
         """
         Execute a CQL query.
         
         Args:
             query: The CQL query string
-            params: The parameters for the query
+            params: The parameters for the query as either a tuple or dictionary
             
         Returns:
             List of rows as dictionaries
@@ -73,19 +73,25 @@ class CassandraClient:
         
         try:
             statement = SimpleStatement(query)
-            result = self.session.execute(statement, params or {})
+            
+            # Ensure params is always passed in the correct format
+            if params is None:
+                result = self.session.execute(statement)
+            else:
+                result = self.session.execute(statement, params)
+                
             return list(result)
         except Exception as e:
             logger.error(f"Query execution failed: {str(e)}")
             raise
     
-    def execute_async(self, query: str, params: dict = None):
+    def execute_async(self, query: str, params: Union[Tuple, Dict[str, Any]] = None):
         """
         Execute a CQL query asynchronously.
         
         Args:
             query: The CQL query string
-            params: The parameters for the query
+            params: The parameters for the query as either a tuple or dictionary
             
         Returns:
             Async result object
@@ -95,7 +101,12 @@ class CassandraClient:
         
         try:
             statement = SimpleStatement(query)
-            return self.session.execute_async(statement, params or {})
+            
+            # Ensure params is always passed in the correct format
+            if params is None:
+                return self.session.execute_async(statement)
+            else:
+                return self.session.execute_async(statement, params)
         except Exception as e:
             logger.error(f"Async query execution failed: {str(e)}")
             raise
@@ -107,4 +118,4 @@ class CassandraClient:
         return self.session
 
 # Create a global instance
-cassandra_client = CassandraClient() 
+cassandra_client = CassandraClient()
